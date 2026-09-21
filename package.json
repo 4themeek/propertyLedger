@@ -1,0 +1,41 @@
+{
+  "name": "property-ledger",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "hash:password": "tsx scripts/hash-password.ts",
+    "cf:build": "opennextjs-cloudflare build",
+    "cf:deploy": "opennextjs-cloudflare deploy"
+  },
+  "dependencies": {
+    "next": "^16.3.5",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "drizzle-orm": "^0.45.2",
+    "@neondatabase/serverless": "^1.1.0",
+    "aws4fetch": "^1.0.20"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "tailwindcss": "^4.3.3",
+    "@tailwindcss/postcss": "^4.3.3",
+    "postcss": "^8.4.49",
+    "drizzle-kit": "^0.31.10",
+    "dotenv": "^16.4.7",
+    "tsx": "^4.23.15",
+    "wrangler": "^4.135.0",
+    "@opennextjs/cloudflare": "^1.20.6"
+  }
+}
