@@ -90,6 +90,7 @@ export const leases = pgTable("leases", {
   tenantSignatoryName: text("tenant_signatory_name"),
   tenantSignatoryTitle: text("tenant_signatory_title"),
   guarantorName: text("guarantor_name"),
+  tenantImprovementDetails: text("tenant_improvement_details"),
 });
 
 export const rentSchedulePeriods = pgTable("rent_schedule_periods", {

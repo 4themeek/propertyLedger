@@ -326,6 +326,18 @@ export default async function LeaseDetailPage({
           <DocField label="Tenant signatory title" name="tenantSignatoryTitle" defaultValue={lease.tenantSignatoryTitle} />
           <DocField label="Guarantor name" name="guarantorName" defaultValue={lease.guarantorName} />
           <div className="col-span-2 sm:col-span-4">
+            <label className="block text-xs font-medium mb-1">
+              Tenant improvements agreed to by the landlord
+            </label>
+            <textarea
+              name="tenantImprovementDetails"
+              rows={3}
+              defaultValue={lease.tenantImprovementDetails ?? ""}
+              placeholder="e.g. New carpet tiles in the private offices, kitchen build-out, glass storefront entrance..."
+              className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
+            />
+          </div>
+          <div className="col-span-2 sm:col-span-4">
             <button
               type="submit"
               className="rounded bg-slate-900 text-white px-3 py-1.5 text-sm font-medium hover:bg-slate-700"

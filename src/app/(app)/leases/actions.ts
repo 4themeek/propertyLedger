@@ -131,6 +131,7 @@ export async function updateLeaseDocumentDetails(leaseId: number, formData: Form
       tenantSignatoryName: strOrNull(formData, "tenantSignatoryName"),
       tenantSignatoryTitle: strOrNull(formData, "tenantSignatoryTitle"),
       guarantorName: strOrNull(formData, "guarantorName"),
+      tenantImprovementDetails: strOrNull(formData, "tenantImprovementDetails"),
     })
     .where(eq(leases.id, leaseId));
 
