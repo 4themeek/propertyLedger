@@ -70,3 +70,53 @@ export async function deleteTemplateRentRow(rowId: number, templateId: number) {
   await db.delete(leaseTemplateRentRows).where(eq(leaseTemplateRentRows.id, rowId));
   revalidatePath(`/lease-templates/${templateId}`);
 }
+
+function escalate(startingAmount: number, escalationPct: number, periodIndex: number): string {
+  const amount = startingAmount * Math.pow(1 + escalationPct / 100, periodIndex);
+  return amount.toFixed(2);
+}
+
+export async function generateTemplateRentRows(templateId: number, formData: FormData) {
+  const numberOfPeriods = Number(formData.get("numberOfPeriods"));
+  const monthsPerPeriod = Number(formData.get("monthsPerPeriod"));
+  const startingMonthlyBaseRent = Number(formData.get("startingMonthlyBaseRent"));
+  const baseRentEscalationPct = Number(formData.get("baseRentEscalationPct") || 0);
+  const startingMonthlyAdditionalRentRaw = String(
+    formData.get("startingMonthlyAdditionalRent") ?? ""
+  ).trim();
+  const additionalRentEscalationPct = Number(formData.get("additionalRentEscalationPct") || 0);
+  const replaceExisting = formData.get("replaceExisting") === "on";
+
+  if (
+    !Number.isInteger(numberOfPeriods) ||
+    numberOfPeriods < 1 ||
+    !Number.isInteger(monthsPerPeriod) ||
+    monthsPerPeriod < 1 ||
+    !Number.isFinite(startingMonthlyBaseRent)
+  ) {
+    throw new Error("Number of periods, months per period, and starting rent are required");
+  }
+
+  const startingMonthlyAdditionalRent = startingMonthlyAdditionalRentRaw
+    ? Number(startingMonthlyAdditionalRentRaw)
+    : null;
+
+  const rows = Array.from({ length: numberOfPeriods }, (_, i) => ({
+    templateId,
+    monthOffsetStart: i * monthsPerPeriod + 1,
+    monthOffsetEnd: (i + 1) * monthsPerPeriod,
+    monthlyBaseRent: escalate(startingMonthlyBaseRent, baseRentEscalationPct, i),
+    monthlyAdditionalRent:
+      startingMonthlyAdditionalRent !== null
+        ? escalate(startingMonthlyAdditionalRent, additionalRentEscalationPct, i)
+        : null,
+    notes: null,
+  }));
+
+  if (replaceExisting) {
+    await db.delete(leaseTemplateRentRows).where(eq(leaseTemplateRentRows.templateId, templateId));
+  }
+  await db.insert(leaseTemplateRentRows).values(rows);
+
+  revalidatePath(`/lease-templates/${templateId}`);
+}

@@ -2,7 +2,12 @@ import { notFound } from "next/navigation";
 import { eq, asc } from "drizzle-orm";
 import { db } from "@/db";
 import { leaseTemplates, leaseTemplateRentRows } from "@/db/schema";
-import { addTemplateRentRow, deleteTemplateRentRow, deleteTemplate } from "../actions";
+import {
+  addTemplateRentRow,
+  deleteTemplateRentRow,
+  deleteTemplate,
+  generateTemplateRentRows,
+} from "../actions";
 
 function formatMoney(value: string | null) {
   if (!value) return "—";
@@ -36,6 +41,7 @@ export default async function LeaseTemplateDetailPage({
     .orderBy(asc(leaseTemplateRentRows.monthOffsetStart));
 
   const boundAddRow = addTemplateRentRow.bind(null, templateId);
+  const boundGenerateRows = generateTemplateRentRows.bind(null, templateId);
 
   return (
     <div className="space-y-8">
@@ -148,6 +154,88 @@ export default async function LeaseTemplateDetailPage({
             Add row
           </button>
         </form>
+
+        <details className="mt-3">
+          <summary className="text-sm text-slate-600 cursor-pointer hover:underline">
+            Generate a schedule instead of adding rows one at a time
+          </summary>
+          <form
+            action={boundGenerateRows}
+            className="flex flex-wrap items-end gap-3 bg-white border border-slate-200 rounded-lg p-4 mt-2"
+          >
+            <div>
+              <label className="block text-xs font-medium mb-1"># of periods</label>
+              <input
+                type="number"
+                name="numberOfPeriods"
+                min={1}
+                required
+                defaultValue={template.renewalOptionYears ? undefined : 1}
+                className="rounded border border-slate-300 px-2 py-1.5 text-sm w-20"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium mb-1">Months per period</label>
+              <input
+                type="number"
+                name="monthsPerPeriod"
+                min={1}
+                required
+                defaultValue={12}
+                className="rounded border border-slate-300 px-2 py-1.5 text-sm w-20"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium mb-1">Starting monthly base rent</label>
+              <input
+                type="number"
+                step="0.01"
+                name="startingMonthlyBaseRent"
+                required
+                className="rounded border border-slate-300 px-2 py-1.5 text-sm w-32"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium mb-1">Base rent escalation %/period</label>
+              <input
+                type="number"
+                step="0.01"
+                name="baseRentEscalationPct"
+                defaultValue={0}
+                className="rounded border border-slate-300 px-2 py-1.5 text-sm w-28"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium mb-1">Starting monthly additional rent</label>
+              <input
+                type="number"
+                step="0.01"
+                name="startingMonthlyAdditionalRent"
+                className="rounded border border-slate-300 px-2 py-1.5 text-sm w-32"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium mb-1">Additional rent escalation %/period</label>
+              <input
+                type="number"
+                step="0.01"
+                name="additionalRentEscalationPct"
+                defaultValue={0}
+                className="rounded border border-slate-300 px-2 py-1.5 text-sm w-28"
+              />
+            </div>
+            <label className="flex items-center gap-1.5 text-sm">
+              <input type="checkbox" name="replaceExisting" />
+              Replace existing rows
+            </label>
+            <button
+              type="submit"
+              className="rounded bg-slate-900 text-white px-3 py-1.5 text-sm font-medium hover:bg-slate-700"
+            >
+              Generate
+            </button>
+          </form>
+        </details>
       </div>
     </div>
   );
