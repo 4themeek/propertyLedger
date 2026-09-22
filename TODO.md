@@ -3,6 +3,27 @@
 Tracks what's left to finish the HANDOFF.md deployment phases. See
 `PROJECT_STATUS.md` for the fuller picture of what's already working.
 
+## Lease document generation (new, not started)
+
+`templates/lease-agreement-template.docx` exists and is verified working
+(see PROJECT_STATUS.md), but nothing in the app uses it yet. To wire it in:
+
+- [ ] Add `docxtemplater` + `pizzip` as app dependencies
+- [ ] Add missing schema fields the template needs but leases/tenants/
+      properties don't currently store: guarantor name, landlord/tenant
+      signatory name + title, tenant address split into street/city/state/
+      zip (currently one `mailingAddress` text field), property state
+      (currently only `addressState` on properties — should already cover
+      `propertyState`, double check field names line up)
+- [ ] A "Generate lease document" action on the lease detail page that
+      maps a lease + its suite + tenant + property + rent schedule rows
+      into the template's field names and produces a downloadable .docx
+      (upload the result to R2 as a `lease` category document, or stream
+      it directly as a download — decide which)
+- [ ] Decide whether template values need `$`/comma formatting handled by
+      the generator code or typed in by the user (the template's dollar
+      fields expect the number only, e.g. `537.50`, not `$537.50`)
+
 ## Blocked on the user (dashboard actions)
 
 - [ ] **Cloudflare R2** (on hold, user asked to come back to this later)

@@ -51,6 +51,73 @@ the sample lease. Added, all verified working end-to-end:
 required a `suiteId` in the URL), so it works standalone, from a suite
 page, from a clone, or from a template.
 
+## Lease document template
+
+`templates/lease-agreement-template.docx` — the real sample commercial
+lease (`C:\2026-Claude\EDGER\4TR-Sample_Lease_2026.docx`, Sky Lofts LLC ↔
+EDIS Group LLC), converted into a docxtemplater merge-field template.
+
+The source file turned out to already have unresolved Word tracked
+changes — someone had started converting it to a template by redlining
+out the landlord/tenant names and addresses, but never accepted the
+changes. Those were accepted first (via direct XML string-splicing, not
+a full-tree reserialization — that approach was tried first and found to
+subtly corrupt namespace declarations and whitespace-preservation
+attributes elsewhere in the document; redone safely after catching it).
+Every other variable field (dates, term/renewal numbers, suite/sqft,
+deposit/parking/moving-expense amounts, signatory names) was then
+replaced by hand with `{fieldName}` placeholders, using large
+unique-context string anchors to avoid accidentally matching the wrong
+occurrence of a common word like "Landlord".
+
+The rent schedule table was converted from a fixed 8-row table into a
+single templated row wrapped in a `{#rentRows}...{/rentRows}` loop, so a
+lease with any number of rate-escalation periods can be generated — not
+just ones matching the sample's exact 8-period structure.
+
+**Verified**, not just visually inspected (no LibreOffice on this
+machine to render a preview) — actually rendered through docxtemplater
+with sample data including a 3-row rent schedule:
+- `office/validate.py` (from the docx skill): structurally valid OOXML
+- The rendered output's rent table had exactly 3 rows with correct
+  per-row values (proves the loop works, not just that it doesn't crash)
+- Zero leftover unfilled `{...}` tokens anywhere in the rendered document
+
+**Not wired into the app yet** — this is the template file only. See
+TODO.md for what's needed to actually generate a filled lease document
+from a lease record (new schema fields, a docxtemplater dependency, a
+"Generate lease document" action).
+
+**Field → data source mapping** (for whoever wires this in):
+
+| Template field(s) | Current data source | Notes |
+|---|---|---|
+| `landlordName`, `landlordAddressLine1`, `landlordCityStateZip` | none | Single-entity app — could be `.env` config or a new settings table, not per-lease data |
+| `tenantName` | `tenants.entityName` | |
+| `tenantAddressLine1`, `tenantCityStateZip` | none | `tenants.mailingAddress` is one free-text field today, not split into street/city/state/zip |
+| `commencementDate`, `initialTermMonths`, `renewalOptionYears`, `renewalNoticeDays` | `leases.*` | Direct match |
+| `renewalOptionCount`, `earlyOccupancyWeeks`, `rentFreeMonths`, `firstRentDueDate`, `expirationDate`, `guaranteePeriodEndDate`, `leaseExecutionMonthYear`, `leaseExecutionYear` | none | Not in schema; some are computable (`expirationDate` from commencement+term), others need new fields |
+| `rentableSqft` | `suites.rentableSqft` | |
+| `suiteNumber` | `suites.suiteNumber` | |
+| `securityDepositMonths`, `securityDepositAmount`, `parkingPaymentAmount`, `parkingSpotCount`, `parkingYears`, `movingExpenseAmount` | none | Deal-specific numbers not currently tracked anywhere |
+| `propertyStreetAddress`, `propertyCity`, `propertyState` | `properties.addressStreet/addressCity/addressState` | Direct match |
+| `landlordSignatoryName/Title`, `tenantSignatoryName/Title`, `guarantorName` | none | Not in schema |
+| `rentRows[].*` | `rentSchedulePeriods` rows for the lease | `leaseYear`/`leaseMonthRange`/`annualBaseRentPerSqft`/`annualBaseRent`/`annualAdditionalRent` are all computable from `periodStart`/`periodEnd`/`monthlyBaseRent`/`monthlyAdditionalRent` + the suite's `rentableSqft` |
+
+Simplifications made versus the original document's exact legal language
+(flagged here since they're judgment calls, not neutral transcription):
+- Dropped the spelled-out-words duplicate of numeric terms (e.g. "eighty
+  seven (87)" → just "{initialTermMonths}") — the source already had an
+  internal inconsistency here (words said 87, numeral said 90)
+- Standardized the rent-free period to show as a real `$0.00` row in the
+  table rather than the source's special-cased "FREE"/"N/A" text
+- Assumed "an Ohio limited liability company" and Ohio/Hamilton County
+  as the governing jurisdiction throughout — not templated, since the
+  app has no per-lease jurisdiction field; fine for Sky Lofts' own
+  building, would need manual editing for an out-of-state deal
+- Left broker names (Colliers / Elaine Gillespie / Sloane Nichols)
+  as literal text — not templated, lower priority
+
 ## Current state
 
 - [x] App built from scratch (see `HANDOFF.md` for why — the repo existed
