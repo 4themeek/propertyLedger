@@ -12,8 +12,8 @@ Tracks what's left to finish the HANDOFF.md deployment phases. See
   - [ ] Give Claude: Account ID, Access Key ID, Secret Access Key
 - [ ] Confirm test data in the database (Sky Lofts / EDIS Group) — keep as
       real first entry, or clear it before continuing?
-- [ ] Confirm whether the Vercel project that auto-attempted a build is
-      the one to keep using for Phase 7, or if a fresh one should be made
+- [ ] Confirm `www.skybuilder.pro` is the intended production domain for
+      this app (that's what the existing Vercel project is aliased to)
 
 ## Once R2 credentials are in hand
 
@@ -25,8 +25,11 @@ Tracks what's left to finish the HANDOFF.md deployment phases. See
 
 ## Deployment (HANDOFF.md Phases 7–10)
 
-- [ ] Vercel: add all 7 env vars via `vercel env add <NAME> production`
-- [ ] `vercel --prod`, confirm `/login` returns 200
+- [x] Vercel: `DATABASE_URL` auto-provided by the Neon integration;
+      `APP_PASSWORD_HASH` and `SESSION_SECRET` added via `vercel env add`
+- [x] `vercel --prod` — live at https://www.skybuilder.pro, `/login`
+      verified working with the real site password
+- [ ] Add the 4 R2 vars to Vercel once Cloudflare setup is done
 - [ ] Cloudflare Workers: `npx wrangler secret put <NAME>` for all 7 vars
 - [ ] `npm run cf:build && npm run cf:deploy`
 - [ ] Confirm the `*.workers.dev` URL's `/login` also returns 200

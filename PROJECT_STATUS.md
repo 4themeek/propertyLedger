@@ -34,10 +34,19 @@ Local: `C:\2026-Claude\property-ledger`
       property → suite → tenant → lease → rent schedule row, all working
 - [ ] Cloudflare R2 bucket + API token — **not set up yet, on hold**
 - [ ] File upload (floorplans/lease documents) — untested, blocked on R2
-- [ ] Vercel deployment — a Vercel project exists and auto-attempted a
-      build from the first GitHub push (before secrets were configured);
-      it failed on that first attempt but the underlying bug is fixed
-      (see below). Real env vars have not been added to Vercel yet.
+- [x] **Vercel deployment is live**: https://www.skybuilder.pro (project
+      `amdg26/property-ledger`). The Neon database was created through
+      Vercel's own Storage/Marketplace integration, which auto-injected
+      `DATABASE_URL` (and several Postgres variable variants) into the
+      Vercel project already — no need to set that one manually.
+      `APP_PASSWORD_HASH` and `SESSION_SECRET` were added via
+      `vercel env add ... --sensitive`. Login and the full property →
+      suite → tenant → lease flow verified working on the live site,
+      showing the same data as local (confirms it's the same database).
+      R2 vars are not set yet, so file upload will fail there until Phase 4.
+      Note: the production alias is `www.skybuilder.pro`, not a
+      `property-ledger`-branded domain — confirm with the user whether
+      that's intentional.
 - [ ] Cloudflare Workers deployment — not started
 - [ ] Cross-deployment check (same data visible on both Vercel and
       Workers URLs) — not started
