@@ -83,10 +83,18 @@ with sample data including a 3-row rent schedule:
   per-row values (proves the loop works, not just that it doesn't crash)
 - Zero leftover unfilled `{...}` tokens anywhere in the rendered document
 
-**Not wired into the app yet** — this is the template file only. See
-TODO.md for what's needed to actually generate a filled lease document
-from a lease record (new schema fields, a docxtemplater dependency, a
-"Generate lease document" action).
+**Now wired into the app.** `/api/leases/[id]/document` generates a real
+lease document from a lease's actual data via `docxtemplater` — a
+"Generate lease document" button on the lease detail page. A `/landlord-profile`
+settings page holds the one landlord entity used on every document; a
+"Document details" section on each lease holds the fields the core ledger
+doesn't otherwise need (signatory names, guarantor, deposit/parking/moving
+amounts, etc.), all optional. Verified against real production data
+(lease #2's real rent schedule and tenant): 320,920-byte output, byte-for-byte
+identical between a local direct-script run and the live Vercel deployment,
+zero leftover `{...}` tokens. See TODO.md for the one known gap (this
+specific feature needs a different template-loading approach before it'll
+work on the Cloudflare Workers deployment, since Workers has no filesystem).
 
 **Field → data source mapping** (for whoever wires this in):
 
