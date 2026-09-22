@@ -118,16 +118,20 @@ export default async function LeaseDetailPage({
           <Link href={`/leases/new?cloneFrom=${leaseId}`} className="text-sm text-slate-600 hover:underline">
             Duplicate this lease
           </Link>
+          <Link href={`/leases/${leaseId}/preview`} className="text-sm text-slate-600 hover:underline">
+            Preview document
+          </Link>
           <a
             href={`/api/leases/${leaseId}/document`}
             className="text-sm bg-slate-900 text-white px-3 py-1.5 rounded hover:bg-slate-700"
           >
-            Generate lease document
+            Download lease document
           </a>
         </div>
         <p className="text-xs text-slate-500 mt-1">
-          Generates the lease agreement from the fields below — works at any point, even with
-          blanks left for details you haven&apos;t filled in yet, so you can preview it as you go.
+          Both reflect the fields below right now — works at any point, even with blanks left for
+          details you haven&apos;t filled in yet. &quot;Preview&quot; shows the text on this page;
+          &quot;Download&quot; gets you the actual formatted .docx.
         </p>
       </div>
 
