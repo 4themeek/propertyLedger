@@ -23,6 +23,34 @@ Local: `C:\2026-Claude\property-ledger`
 - Deploy target: **both** Vercel (primary) and Cloudflare Workers (backup,
   via `@opennextjs/cloudflare`), sharing the same Neon database
 
+## Features added beyond the original HANDOFF.md scope
+
+Lease creation was all-manual (blank form, rent-schedule rows added one at
+a time) — a real problem for leases with many rate-escalation periods like
+the sample lease. Added, all verified working end-to-end:
+
+1. **Reusable lease templates** (`/lease-templates`) — save named terms +
+   a rent-schedule pattern expressed as relative month offsets (e.g.
+   "months 1–3", "months 4–12") since a template has no real commencement
+   date yet. Applying a template to a new lease (`/leases/new?templateId=`)
+   converts those offsets into real calendar dates via
+   `src/lib/dates.ts::periodFromMonthOffsets`, using the lease's actual
+   commencement date (leap years handled correctly — verified against a
+   2028-02-29 case).
+2. **Clone an existing lease** — "Duplicate this lease" on any lease page
+   (`/leases/new?cloneFrom=`) copies its terms and rent-schedule rows
+   as-is into a new lease; dates aren't shifted automatically, so edit
+   them afterward if the new lease starts on a different date.
+3. **Bulk rent-schedule generation** — a "Generate a schedule" form on the
+   lease detail page creates N periods at once from a starting rent and a
+   per-period % escalation (base rent and additional rent escalate
+   independently), with an option to replace the existing schedule instead
+   of appending.
+
+`/leases/new` now always shows suite + tenant dropdowns (previously
+required a `suiteId` in the URL), so it works standalone, from a suite
+page, from a clone, or from a template.
+
 ## Current state
 
 - [x] App built from scratch (see `HANDOFF.md` for why — the repo existed
@@ -51,14 +79,21 @@ Local: `C:\2026-Claude\property-ledger`
 - [ ] Cross-deployment check (same data visible on both Vercel and
       Workers URLs) — not started
 
-## Test data currently in the database
+## Data currently in the database
 
-One property ("Sky Lofts", Cincinnati OH) with one suite (204), one tenant
-(EDIS Group, LLC), one lease, and one rent schedule row — mirrors the
-real example lease in `C:\2026-Claude\EDGER\4TR-Sample_Lease_2026.docx`
-used to validate the data model. This was used for local smoke testing;
-confirm with the user whether to keep it as real data or clear it before
-going further.
+Started as one property ("Sky Lofts", Cincinnati OH) with one suite (204),
+one tenant (EDIS Group, LLC), one lease, and one rent schedule row —
+mirroring the real example lease in
+`C:\2026-Claude\EDGER\4TR-Sample_Lease_2026.docx`, used to validate the
+data model during local smoke testing. The user has since added more
+(Suite 200, a "Pixel Fiction" tenant/lease) while testing the live site —
+since local and production share one Neon database, both sets of data
+are visible from either. A "Standard office suite" lease template was
+also added (real, meant to be kept) while verifying the template feature;
+two disposable test leases created purely to verify the clone/template/
+bulk-generate features were deleted afterward via a one-off script.
+Confirm with the user whether the original Sky Lofts/EDIS Group entry
+should be kept as real data or cleared.
 
 ## Bugs found and fixed during setup
 

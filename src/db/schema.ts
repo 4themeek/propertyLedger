@@ -74,6 +74,31 @@ export const rentSchedulePeriods = pgTable("rent_schedule_periods", {
   notes: text("notes"),
 });
 
+export const leaseTemplates = pgTable("lease_templates", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  permittedUse: text("permitted_use"),
+  initialTermMonths: integer("initial_term_months"),
+  renewalOptionYears: integer("renewal_option_years"),
+  renewalNoticeDays: integer("renewal_notice_days"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// Rent rows on a template are relative to a lease's (not-yet-known)
+// commencement date — "month 1 through month 3", not real calendar dates.
+export const leaseTemplateRentRows = pgTable("lease_template_rent_rows", {
+  id: serial("id").primaryKey(),
+  templateId: integer("template_id")
+    .notNull()
+    .references(() => leaseTemplates.id, { onDelete: "cascade" }),
+  monthOffsetStart: integer("month_offset_start").notNull(),
+  monthOffsetEnd: integer("month_offset_end").notNull(),
+  monthlyBaseRent: numeric("monthly_base_rent").notNull(),
+  monthlyAdditionalRent: numeric("monthly_additional_rent"),
+  notes: text("notes"),
+});
+
 export const FILE_CATEGORIES = [
   "floorplan",
   "lease",

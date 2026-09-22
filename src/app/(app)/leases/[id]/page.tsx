@@ -13,7 +13,12 @@ import {
   FILE_CATEGORIES,
   type FileCategory,
 } from "@/db/schema";
-import { updateLeaseStatus, addRentSchedulePeriod, deleteRentSchedulePeriod } from "../actions";
+import {
+  updateLeaseStatus,
+  addRentSchedulePeriod,
+  deleteRentSchedulePeriod,
+  generateRentSchedule,
+} from "../actions";
 import { uploadFile, deleteFile } from "@/lib/file-actions";
 
 export const dynamic = "force-dynamic";
@@ -62,6 +67,7 @@ export default async function LeaseDetailPage({
   const revalidatePathValue = `/leases/${leaseId}`;
   const boundAddPeriod = addRentSchedulePeriod.bind(null, leaseId);
   const boundUpdateStatus = updateLeaseStatus.bind(null, leaseId);
+  const boundGenerateSchedule = generateRentSchedule.bind(null, leaseId);
 
   return (
     <div className="space-y-8">
@@ -93,19 +99,24 @@ export default async function LeaseDetailPage({
           {lease.notes && <div className="mt-2 text-slate-600">{lease.notes}</div>}
         </div>
 
-        <form action={boundUpdateStatus} className="flex items-center gap-2 mt-3">
-          <label className="text-sm font-medium">Status</label>
-          <select name="status" defaultValue={lease.status} className="rounded border border-slate-300 px-2 py-1 text-sm">
-            {LEASE_STATUSES.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
-          <button type="submit" className="text-sm text-slate-600 hover:underline">
-            Update
-          </button>
-        </form>
+        <div className="flex items-center gap-4 mt-3">
+          <form action={boundUpdateStatus} className="flex items-center gap-2">
+            <label className="text-sm font-medium">Status</label>
+            <select name="status" defaultValue={lease.status} className="rounded border border-slate-300 px-2 py-1 text-sm">
+              {LEASE_STATUSES.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+            <button type="submit" className="text-sm text-slate-600 hover:underline">
+              Update
+            </button>
+          </form>
+          <Link href={`/leases/new?cloneFrom=${leaseId}`} className="text-sm text-slate-600 hover:underline">
+            Duplicate this lease
+          </Link>
+        </div>
       </div>
 
       <div>
@@ -179,6 +190,98 @@ export default async function LeaseDetailPage({
             Add row
           </button>
         </form>
+
+        <details className="mt-3">
+          <summary className="text-sm text-slate-600 cursor-pointer hover:underline">
+            Generate a schedule instead of adding rows one at a time
+          </summary>
+          <form
+            action={boundGenerateSchedule}
+            className="flex flex-wrap items-end gap-3 bg-white border border-slate-200 rounded-lg p-4 mt-2"
+          >
+            <div>
+              <label className="block text-xs font-medium mb-1">First period starts</label>
+              <input
+                type="date"
+                name="firstPeriodStart"
+                required
+                defaultValue={lease.commencementDate ?? undefined}
+                className="rounded border border-slate-300 px-2 py-1.5 text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium mb-1"># of periods</label>
+              <input
+                type="number"
+                name="numberOfPeriods"
+                min={1}
+                required
+                defaultValue={lease.renewalOptionYears ? undefined : 1}
+                className="rounded border border-slate-300 px-2 py-1.5 text-sm w-20"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium mb-1">Months per period</label>
+              <input
+                type="number"
+                name="monthsPerPeriod"
+                min={1}
+                required
+                defaultValue={12}
+                className="rounded border border-slate-300 px-2 py-1.5 text-sm w-20"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium mb-1">Starting monthly base rent</label>
+              <input
+                type="number"
+                step="0.01"
+                name="startingMonthlyBaseRent"
+                required
+                className="rounded border border-slate-300 px-2 py-1.5 text-sm w-32"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium mb-1">Base rent escalation %/period</label>
+              <input
+                type="number"
+                step="0.01"
+                name="baseRentEscalationPct"
+                defaultValue={0}
+                className="rounded border border-slate-300 px-2 py-1.5 text-sm w-28"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium mb-1">Starting monthly additional rent</label>
+              <input
+                type="number"
+                step="0.01"
+                name="startingMonthlyAdditionalRent"
+                className="rounded border border-slate-300 px-2 py-1.5 text-sm w-32"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium mb-1">Additional rent escalation %/period</label>
+              <input
+                type="number"
+                step="0.01"
+                name="additionalRentEscalationPct"
+                defaultValue={0}
+                className="rounded border border-slate-300 px-2 py-1.5 text-sm w-28"
+              />
+            </div>
+            <label className="flex items-center gap-1.5 text-sm">
+              <input type="checkbox" name="replaceExisting" />
+              Replace existing rows
+            </label>
+            <button
+              type="submit"
+              className="rounded bg-slate-900 text-white px-3 py-1.5 text-sm font-medium hover:bg-slate-700"
+            >
+              Generate
+            </button>
+          </form>
+        </details>
       </div>
 
       <div>
