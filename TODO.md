@@ -3,26 +3,45 @@
 Tracks what's left to finish the HANDOFF.md deployment phases. See
 `PROJECT_STATUS.md` for the fuller picture of what's already working.
 
-## Lease document generation (new, not started)
+## Lease document generation — DONE
 
-`templates/lease-agreement-template.docx` exists and is verified working
-(see PROJECT_STATUS.md), but nothing in the app uses it yet. To wire it in:
+Wired up end-to-end: `/api/leases/[id]/document` (GET, auth-gated like
+everything else) generates the lease agreement `.docx` from a lease's real
+data and streams it back as a download. "Generate lease document" button
+on the lease detail page; works at any point during editing since every
+template field defaults to an empty string rather than being undefined —
+this doubles as a live preview (generate anytime, blanks show up blank).
 
-- [ ] Add `docxtemplater` + `pizzip` as app dependencies
-- [ ] Add missing schema fields the template needs but leases/tenants/
-      properties don't currently store: guarantor name, landlord/tenant
-      signatory name + title, tenant address split into street/city/state/
-      zip (currently one `mailingAddress` text field), property state
-      (currently only `addressState` on properties — should already cover
-      `propertyState`, double check field names line up)
-- [ ] A "Generate lease document" action on the lease detail page that
-      maps a lease + its suite + tenant + property + rent schedule rows
-      into the template's field names and produces a downloadable .docx
-      (upload the result to R2 as a `lease` category document, or stream
-      it directly as a download — decide which)
-- [ ] Decide whether template values need `$`/comma formatting handled by
-      the generator code or typed in by the user (the template's dollar
-      fields expect the number only, e.g. `537.50`, not `$537.50`)
+What was added:
+- `landlordProfile` table + `/landlord-profile` settings page (singleton —
+  one landlord entity for the whole app, used on every generated document)
+- `tenants.mailingAddress` replaced with `addressLine1` + `cityStateZip`
+  (split to match the template's two-line address format)
+- New document-only fields on `leases` (renewal option count, early
+  occupancy weeks, rent-free months, first rent due date, lease execution
+  date, guarantee period end date, security deposit/parking/moving-expense
+  amounts, tenant signatory name/title, guarantor name) — editable via a
+  "Document details" section on the lease detail page, all optional
+- `src/lib/lease-document.ts` — maps a lease + suite + tenant + property +
+  landlord profile + rent schedule rows into the template's field names;
+  rent-table rows (lease year, month range, annual figures) are computed
+  from `rentSchedulePeriods` + the suite's `rentableSqft`, not stored
+  separately
+- `docxtemplater` + `pizzip` as app dependencies; template file read via
+  `fs.readFileSync` from `templates/`, with `outputFileTracingIncludes` in
+  `next.config.js` so Vercel's build bundles it into the serverless function
+
+Verified locally against the real database (lease #2, real rent schedule
+rows) via a direct Node script — zero leftover `{...}` tokens, correct
+computed values, matches the earlier docxtemplater test.
+
+**Known gap**: `fs.readFileSync` for the template works on Vercel's
+Node.js runtime, but Cloudflare Workers has no filesystem — this feature
+specifically will need a different approach (e.g. fetch the template from
+its own deployed URL, or embed it as a bundled asset) before it'll work on
+the Cloudflare Workers deployment. Not yet an issue since Workers deploy
+hasn't happened yet (blocked on R2 below), but flag it when that phase
+starts.
 
 ## Blocked on the user (dashboard actions)
 

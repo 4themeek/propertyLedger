@@ -40,7 +40,8 @@ export default async function TenantDetailPage({
           {tenant.contactName && <div>{tenant.contactName}</div>}
           {tenant.contactEmail && <div>{tenant.contactEmail}</div>}
           {tenant.contactPhone && <div>{tenant.contactPhone}</div>}
-          {tenant.mailingAddress && <div>{tenant.mailingAddress}</div>}
+          {tenant.addressLine1 && <div>{tenant.addressLine1}</div>}
+          {tenant.cityStateZip && <div>{tenant.cityStateZip}</div>}
         </div>
         {tenant.notes && <p className="text-sm text-slate-600 mt-2">{tenant.notes}</p>}
       </div>

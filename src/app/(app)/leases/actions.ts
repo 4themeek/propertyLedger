@@ -102,6 +102,41 @@ export async function updateLeaseStatus(leaseId: number, formData: FormData) {
   revalidatePath(`/leases/${leaseId}`);
 }
 
+function numOrNull(formData: FormData, key: string): number | null {
+  const raw = String(formData.get(key) ?? "").trim();
+  return raw ? Number(raw) : null;
+}
+
+function strOrNull(formData: FormData, key: string): string | null {
+  const raw = String(formData.get(key) ?? "").trim();
+  return raw || null;
+}
+
+export async function updateLeaseDocumentDetails(leaseId: number, formData: FormData) {
+  await db
+    .update(leases)
+    .set({
+      renewalOptionCount: numOrNull(formData, "renewalOptionCount"),
+      earlyOccupancyWeeks: numOrNull(formData, "earlyOccupancyWeeks"),
+      rentFreeMonths: numOrNull(formData, "rentFreeMonths"),
+      firstRentDueDate: strOrNull(formData, "firstRentDueDate"),
+      leaseExecutionDate: strOrNull(formData, "leaseExecutionDate"),
+      guaranteePeriodEndDate: strOrNull(formData, "guaranteePeriodEndDate"),
+      securityDepositMonths: numOrNull(formData, "securityDepositMonths"),
+      securityDepositAmount: strOrNull(formData, "securityDepositAmount"),
+      parkingPaymentAmount: strOrNull(formData, "parkingPaymentAmount"),
+      parkingSpotCount: numOrNull(formData, "parkingSpotCount"),
+      parkingYears: numOrNull(formData, "parkingYears"),
+      movingExpenseAmount: strOrNull(formData, "movingExpenseAmount"),
+      tenantSignatoryName: strOrNull(formData, "tenantSignatoryName"),
+      tenantSignatoryTitle: strOrNull(formData, "tenantSignatoryTitle"),
+      guarantorName: strOrNull(formData, "guarantorName"),
+    })
+    .where(eq(leases.id, leaseId));
+
+  revalidatePath(`/leases/${leaseId}`);
+}
+
 export async function addRentSchedulePeriod(leaseId: number, formData: FormData) {
   const periodStart = String(formData.get("periodStart") ?? "").trim();
   const periodEnd = String(formData.get("periodEnd") ?? "").trim();

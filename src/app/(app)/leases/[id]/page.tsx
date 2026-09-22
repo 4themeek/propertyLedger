@@ -18,6 +18,7 @@ import {
   addRentSchedulePeriod,
   deleteRentSchedulePeriod,
   generateRentSchedule,
+  updateLeaseDocumentDetails,
 } from "../actions";
 import { uploadFile, deleteFile } from "@/lib/file-actions";
 
@@ -68,6 +69,7 @@ export default async function LeaseDetailPage({
   const boundAddPeriod = addRentSchedulePeriod.bind(null, leaseId);
   const boundUpdateStatus = updateLeaseStatus.bind(null, leaseId);
   const boundGenerateSchedule = generateRentSchedule.bind(null, leaseId);
+  const boundUpdateDocumentDetails = updateLeaseDocumentDetails.bind(null, leaseId);
 
   return (
     <div className="space-y-8">
@@ -116,7 +118,17 @@ export default async function LeaseDetailPage({
           <Link href={`/leases/new?cloneFrom=${leaseId}`} className="text-sm text-slate-600 hover:underline">
             Duplicate this lease
           </Link>
+          <a
+            href={`/api/leases/${leaseId}/document`}
+            className="text-sm bg-slate-900 text-white px-3 py-1.5 rounded hover:bg-slate-700"
+          >
+            Generate lease document
+          </a>
         </div>
+        <p className="text-xs text-slate-500 mt-1">
+          Generates the lease agreement from the fields below — works at any point, even with
+          blanks left for details you haven&apos;t filled in yet, so you can preview it as you go.
+        </p>
       </div>
 
       <div>
@@ -285,6 +297,42 @@ export default async function LeaseDetailPage({
       </div>
 
       <div>
+        <h2 className="text-sm font-semibold text-slate-700 mb-2">Document details</h2>
+        <p className="text-xs text-slate-500 mb-2">
+          Only used to fill in the generated lease document — optional, leave blank if not
+          applicable to this deal.
+        </p>
+        <form
+          action={boundUpdateDocumentDetails}
+          className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-white border border-slate-200 rounded-lg p-4"
+        >
+          <DocField label="Renewal option count" name="renewalOptionCount" type="number" defaultValue={lease.renewalOptionCount} />
+          <DocField label="Early occupancy (weeks)" name="earlyOccupancyWeeks" type="number" defaultValue={lease.earlyOccupancyWeeks} />
+          <DocField label="Rent-free months" name="rentFreeMonths" type="number" defaultValue={lease.rentFreeMonths} />
+          <DocField label="First rent due date" name="firstRentDueDate" type="date" defaultValue={lease.firstRentDueDate} />
+          <DocField label="Lease execution date" name="leaseExecutionDate" type="date" defaultValue={lease.leaseExecutionDate} />
+          <DocField label="Guarantee period ends" name="guaranteePeriodEndDate" type="date" defaultValue={lease.guaranteePeriodEndDate} />
+          <DocField label="Security deposit (months)" name="securityDepositMonths" type="number" defaultValue={lease.securityDepositMonths} />
+          <DocField label="Security deposit amount" name="securityDepositAmount" type="number" step="0.01" defaultValue={lease.securityDepositAmount} />
+          <DocField label="Parking payment amount" name="parkingPaymentAmount" type="number" step="0.01" defaultValue={lease.parkingPaymentAmount} />
+          <DocField label="Parking spot count" name="parkingSpotCount" type="number" defaultValue={lease.parkingSpotCount} />
+          <DocField label="Parking years" name="parkingYears" type="number" defaultValue={lease.parkingYears} />
+          <DocField label="Moving expense amount" name="movingExpenseAmount" type="number" step="0.01" defaultValue={lease.movingExpenseAmount} />
+          <DocField label="Tenant signatory name" name="tenantSignatoryName" defaultValue={lease.tenantSignatoryName} />
+          <DocField label="Tenant signatory title" name="tenantSignatoryTitle" defaultValue={lease.tenantSignatoryTitle} />
+          <DocField label="Guarantor name" name="guarantorName" defaultValue={lease.guarantorName} />
+          <div className="col-span-2 sm:col-span-4">
+            <button
+              type="submit"
+              className="rounded bg-slate-900 text-white px-3 py-1.5 text-sm font-medium hover:bg-slate-700"
+            >
+              Save document details
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div>
         <h2 className="text-sm font-semibold text-slate-700 mb-2">Documents</h2>
         {documents.length === 0 ? (
           <p className="text-sm text-slate-500 mb-3">No documents uploaded yet.</p>
@@ -313,6 +361,33 @@ export default async function LeaseDetailPage({
 
         <DocumentUploadForm leaseId={leaseId} revalidatePathValue={revalidatePathValue} />
       </div>
+    </div>
+  );
+}
+
+function DocField({
+  label,
+  name,
+  type = "text",
+  step,
+  defaultValue,
+}: {
+  label: string;
+  name: string;
+  type?: string;
+  step?: string;
+  defaultValue?: string | number | null;
+}) {
+  return (
+    <div>
+      <label className="block text-xs font-medium mb-1">{label}</label>
+      <input
+        name={name}
+        type={type}
+        step={step}
+        defaultValue={defaultValue ?? ""}
+        className="w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
+      />
     </div>
   );
 }

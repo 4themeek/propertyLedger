@@ -10,7 +10,8 @@ export async function createTenant(formData: FormData) {
   const contactName = String(formData.get("contactName") ?? "").trim() || null;
   const contactEmail = String(formData.get("contactEmail") ?? "").trim() || null;
   const contactPhone = String(formData.get("contactPhone") ?? "").trim() || null;
-  const mailingAddress = String(formData.get("mailingAddress") ?? "").trim() || null;
+  const addressLine1 = String(formData.get("addressLine1") ?? "").trim() || null;
+  const cityStateZip = String(formData.get("cityStateZip") ?? "").trim() || null;
   const notes = String(formData.get("notes") ?? "").trim() || null;
 
   if (!entityName) {
@@ -19,7 +20,7 @@ export async function createTenant(formData: FormData) {
 
   const [created] = await db
     .insert(tenants)
-    .values({ entityName, contactName, contactEmail, contactPhone, mailingAddress, notes })
+    .values({ entityName, contactName, contactEmail, contactPhone, addressLine1, cityStateZip, notes })
     .returning({ id: tenants.id });
 
   revalidatePath("/tenants");

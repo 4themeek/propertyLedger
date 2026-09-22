@@ -11,14 +11,8 @@ export default function NewTenantPage() {
           <Field label="Contact email" name="contactEmail" type="email" />
           <Field label="Contact phone" name="contactPhone" />
         </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Mailing address</label>
-          <textarea
-            name="mailingAddress"
-            rows={2}
-            className="w-full rounded border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-400"
-          />
-        </div>
+        <Field label="Address line 1" name="addressLine1" />
+        <Field label="City, State ZIP" name="cityStateZip" />
         <div>
           <label className="block text-sm font-medium mb-1">Notes</label>
           <textarea

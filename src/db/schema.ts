@@ -36,9 +36,21 @@ export const tenants = pgTable("tenants", {
   contactName: text("contact_name"),
   contactEmail: text("contact_email"),
   contactPhone: text("contact_phone"),
-  mailingAddress: text("mailing_address"),
+  addressLine1: text("address_line1"),
+  cityStateZip: text("city_state_zip"),
   notes: text("notes"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// Single-entity app: one row describes the landlord entity that appears on
+// every generated lease document.
+export const landlordProfile = pgTable("landlord_profile", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  addressLine1: text("address_line1"),
+  cityStateZip: text("city_state_zip"),
+  signatoryName: text("signatory_name"),
+  signatoryTitle: text("signatory_title"),
 });
 
 export const LEASE_STATUSES = ["active", "expired", "terminated"] as const;
@@ -60,6 +72,24 @@ export const leases = pgTable("leases", {
   status: text("status").notNull().default("active"),
   notes: text("notes"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
+
+  // Document-generation-only fields: not needed for the core ledger, only
+  // to fill in the lease agreement template.
+  renewalOptionCount: integer("renewal_option_count"),
+  earlyOccupancyWeeks: integer("early_occupancy_weeks"),
+  rentFreeMonths: integer("rent_free_months"),
+  firstRentDueDate: date("first_rent_due_date"),
+  leaseExecutionDate: date("lease_execution_date"),
+  guaranteePeriodEndDate: date("guarantee_period_end_date"),
+  securityDepositMonths: integer("security_deposit_months"),
+  securityDepositAmount: numeric("security_deposit_amount"),
+  parkingPaymentAmount: numeric("parking_payment_amount"),
+  parkingSpotCount: integer("parking_spot_count"),
+  parkingYears: integer("parking_years"),
+  movingExpenseAmount: numeric("moving_expense_amount"),
+  tenantSignatoryName: text("tenant_signatory_name"),
+  tenantSignatoryTitle: text("tenant_signatory_title"),
+  guarantorName: text("guarantor_name"),
 });
 
 export const rentSchedulePeriods = pgTable("rent_schedule_periods", {

@@ -5,6 +5,7 @@ const NAV_LINKS = [
   { href: "/properties", label: "Properties" },
   { href: "/tenants", label: "Tenants" },
   { href: "/lease-templates", label: "Lease templates" },
+  { href: "/landlord-profile", label: "Landlord profile" },
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
