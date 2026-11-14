@@ -56,7 +56,9 @@ export async function lockMinutesRemaining(ip: string): Promise<number> {
   const now = Date.now();
   let until = 0;
   for (const r of rows) if (r.lockedUntil && r.lockedUntil.getTime() > now) until = Math.max(until, r.lockedUntil.getTime());
-  return until ? Math.ceil((until - now) / 60000) : 0;
+  // Lock times come from the database clock; cap the display so small clock
+  // differences between the database and this server never show "16 minutes".
+  return until ? Math.min(LOGIN_LIMITS.lockMinutes, Math.max(1, Math.ceil((until - now) / 60000))) : 0;
 }
 
 async function bump(key: string, limit: number) {
