@@ -154,3 +154,19 @@ export const files = pgTable("files", {
   attachedToId: integer("attached_to_id").notNull(),
   uploadedAt: timestamp("uploaded_at").notNull().defaultNow(),
 });
+
+// Sign-in security (see src/lib/auth-guard.ts).
+// One row (id = 1). Sessions issued before sessionsValidAfter are rejected,
+// which is how "Sign out everywhere" works.
+export const authState = pgTable("auth_state", {
+  id: integer("id").primaryKey(),
+  sessionsValidAfter: timestamp("sessions_valid_after", { withTimezone: true }).notNull(),
+});
+
+// Failed sign-in counter per client IP (and one "global" row as a backstop).
+export const loginAttempts = pgTable("login_attempts", {
+  key: text("key").primaryKey(),
+  failures: integer("failures").notNull().default(0),
+  windowStart: timestamp("window_start", { withTimezone: true }).notNull().defaultNow(),
+  lockedUntil: timestamp("locked_until", { withTimezone: true }),
+});

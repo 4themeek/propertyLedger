@@ -70,7 +70,7 @@ export async function verifyPassword(
 }
 
 const SESSION_COOKIE_NAME = "pl_session";
-const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30; // 30 days
+const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7; // 7 days
 
 function getSessionSecret(): string {
   const secret = process.env.SESSION_SECRET;
@@ -90,9 +90,15 @@ async function hmacSign(data: string, secret: string): Promise<string> {
   return toHex(sig);
 }
 
+// Token format: "v2.<issuedAtMs>.<expiresMs>.<hmac>". The issue time lets
+// "Sign out everywhere" reject sessions created before it (auth-guard.ts).
+// Older tokens ("<expires>.<hmac>") are no longer accepted.
+const TOKEN_VERSION = "v2";
+
 export async function createSessionToken(): Promise<string> {
-  const expires = Date.now() + SESSION_TTL_SECONDS * 1000;
-  const payload = `${expires}`;
+  const issued = Date.now();
+  const expires = issued + SESSION_TTL_SECONDS * 1000;
+  const payload = `${TOKEN_VERSION}.${issued}.${expires}`;
   const sig = await hmacSign(payload, getSessionSecret());
   return `${payload}.${sig}`;
 }
@@ -106,15 +112,18 @@ function constantTimeEqual(a: string, b: string): boolean {
   return diff === 0;
 }
 
-export async function verifySessionToken(token: string | undefined): Promise<boolean> {
-  if (!token) return false;
-  const [payload, sig] = token.split(".");
-  if (!payload || !sig) return false;
-  const expected = await hmacSign(payload, getSessionSecret());
-  if (!constantTimeEqual(expected, sig)) return false;
-  const expires = Number(payload);
-  if (!Number.isFinite(expires) || Date.now() > expires) return false;
-  return true;
+/** Returns the session's issue time (ms) if the token is genuine and unexpired, else null. */
+export async function verifySessionToken(token: string | undefined): Promise<number | null> {
+  if (!token) return null;
+  const parts = token.split(".");
+  if (parts.length !== 4 || parts[0] !== TOKEN_VERSION) return null;
+  const [version, issuedRaw, expiresRaw, sig] = parts;
+  const expected = await hmacSign(`${version}.${issuedRaw}.${expiresRaw}`, getSessionSecret());
+  if (!constantTimeEqual(expected, sig)) return null;
+  const issued = Number(issuedRaw);
+  const expires = Number(expiresRaw);
+  if (!Number.isFinite(issued) || !Number.isFinite(expires) || Date.now() > expires) return null;
+  return issued;
 }
 
 export { SESSION_COOKIE_NAME, SESSION_TTL_SECONDS };

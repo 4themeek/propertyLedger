@@ -1,11 +1,15 @@
+import { safeNextPath } from "@/lib/auth-guard";
+
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ next?: string; error?: string }>;
+  searchParams: Promise<{ next?: string; error?: string; locked?: string; signedOutEverywhere?: string }>;
 }) {
   const params = await searchParams;
-  const next = params.next ?? "/";
+  const next = safeNextPath(params.next);
   const hasError = params.error === "1";
+  const lockedMinutes = Number(params.locked) || 0;
+  const signedOutEverywhere = params.signedOutEverywhere === "1";
 
   return (
     <main className="min-h-screen flex items-center justify-center px-4">
@@ -27,8 +31,15 @@ export default async function LoginPage({
               className="w-full rounded border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-400"
             />
           </div>
-          {hasError && (
-            <p className="text-sm text-red-600">Incorrect password. Try again.</p>
+          {signedOutEverywhere && (
+            <p className="text-sm text-slate-600">Signed out on every browser and device.</p>
+          )}
+          {lockedMinutes > 0 ? (
+            <p className="text-sm text-red-600">
+              Too many incorrect attempts. Try again in {lockedMinutes} minute{lockedMinutes === 1 ? "" : "s"}.
+            </p>
+          ) : (
+            hasError && <p className="text-sm text-red-600">Incorrect password. Try again.</p>
           )}
           <button
             type="submit"
