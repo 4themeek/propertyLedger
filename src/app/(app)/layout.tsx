@@ -11,7 +11,7 @@ const NAV_LINKS = [
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen">
-      <header className="border-b border-slate-200 bg-white">
+      <header className="border-b border-slate-200 bg-white print:hidden">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-6">
             <span className="font-semibold">Property Ledger</span>
@@ -34,7 +34,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </form>
         </div>
       </header>
-      <main className="max-w-5xl mx-auto px-4 py-6">{children}</main>
+      <main className="max-w-5xl mx-auto px-4 py-6 print:max-w-none print:p-0">{children}</main>
     </div>
   );
 }
