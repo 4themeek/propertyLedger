@@ -1,0 +1,76 @@
+/* Lease sheet styles, copied from public/lease-builder/index.html (v1.7).
+   Scoped to .lease-review. Light colours only: this is a printed document. */
+.lease-review{
+    --ink:#211d17; --ink-soft:#5c564a; --ink-faint:#8a8374;
+    --paper:#f6f1e7; --panel:#fffdf9; --panel-2:#efe8d9;
+    --line:#ddd3bd; --line-strong:#c7bb9e;
+    --accent:#7c2d2d; --accent-ink:#fff8f4; --accent-soft:#f3e3de;
+    --good:#3f6b4a; --warn:#8a5a20;
+    --sheet:#fffdf7; --sheet-shadow: 0 1px 2px rgba(33,29,23,.06), 0 12px 32px -16px rgba(33,29,23,.35);
+    --radius:10px;
+    --sans: 'IBM Plex Sans', system-ui, sans-serif;
+    --serif: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+    --mono: 'IBM Plex Mono', ui-monospace, monospace;
+}
+  .sheet{
+    width:100%; max-width:840px; background:var(--sheet); box-shadow:var(--sheet-shadow);
+    border-radius:3px; padding:72px; font-family:var(--serif); color:var(--ink); line-height:1.55;
+  }
+  .sheet h2.doctitle{font-size:22px; text-align:center; letter-spacing:.06em; margin-bottom:2px;}
+  .sheet .bldgtitle{font-size:13.2px; font-weight:700; text-align:center; letter-spacing:.06em; margin:0 0 4px;}
+  .sheet .docsub{text-align:center; font-size:12.5px; color:var(--ink-faint); font-family:var(--sans); margin-bottom:28px;}
+  .sheet h3.sec{
+    font-size:14.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; text-align:center;
+    margin:30px 0 10px; padding-bottom:6px; border-bottom:1px solid var(--line-strong);
+  }
+  .sheet h4.sub{font-weight:700; font-size:15.5px; display:inline; margin-right:6px;}
+  .sheet p{margin:0 0 12px; text-align:justify; font-size:14.5px;}
+  .sheet table{width:100%; border-collapse:collapse; margin:14px 0 18px; font-family:var(--sans); font-size:12.3px;}
+  .sheet table caption{caption-side:top; text-align:left; font-family:var(--sans); font-weight:600; font-size:12px; color:var(--ink-soft); margin-bottom:6px;}
+  .sheet th,.sheet td{border:1px solid var(--line-strong); padding:6px 7px; text-align:right;}
+  .sheet th{background:var(--panel-2); text-align:center; font-weight:600;}
+  .sheet td:first-child, .sheet th:first-child{text-align:left;}
+  .sheet .totalsrow td{font-weight:700; background:var(--panel-2);}
+  .sheet .sig{margin-top:26px;}
+  .sheet .sigline{border-top:1px solid var(--ink); width:280px; margin:34px 0 4px;}
+  .sheet .small{font-size:12px; color:var(--ink-soft); font-family:var(--sans);}
+  .sheet .blank2{display:inline-block; width:2in; height:1.05em; overflow:hidden; white-space:nowrap; vertical-align:bottom; border-bottom:1px solid var(--ink); color:transparent; user-select:none;}
+  .sheet .faint{color:var(--ink-faint); font-weight:400; font-size:.9em;}
+  .sheet .strike{text-decoration:line-through; color:var(--ink-faint); font-weight:400; font-size:.9em;}
+  .sheet .fillgap{border-bottom:1px solid var(--ink-faint); padding:0 2px;}
+  .sheet .pn{display:inline-block; min-width:2.4em; font-family:var(--sans); font-size:13px; color:var(--accent);}
+  .sheet p.item{margin-left:3.2em; text-indent:-1.6em; padding-left:1.6em;}
+  .sheet p.item2{margin-left:5.4em;}
+  .sheet p.center{text-align:center;}
+  .pagebreak{break-before:page; page-break-before:always;}
+  @media screen{
+    .sheet h3.pagebreak{margin-top:64px;}
+    .sheet h3.pagebreak::before{content:"page break"; display:block; font:600 10px var(--sans); letter-spacing:.14em; text-transform:uppercase; color:var(--ink-faint); border-top:1px dashed var(--line-strong); padding-top:8px; margin-bottom:14px; text-align:center;}
+  }
+
+  @page{size:Letter; margin:.75in; @bottom-center{content:counter(page) " of " counter(pages); font-family:Arial,Helvetica,sans-serif; font-size:10pt; color:#444;}}
+  @media print{
+    body{background:#fff;}
+    .sheet{box-shadow:none; max-width:none; width:auto; padding:0; margin:0; border-radius:0;}
+    .sheet h3.sec{break-after:avoid;}
+    .sheet table{break-inside:avoid;}
+  }
+
+  @media (max-width:640px){
+    .sheet{padding:34px 20px 48px;}
+  }
+  .sheet p.prop{border-left:3px solid var(--accent); padding-left:10px;}
+  .sheet p.banner{border:1px solid var(--accent); background:var(--accent-soft); padding:8px 12px; margin:0 0 10px; text-align:left; font-family:var(--sans); font-size:12.5px;}
+  .sheet table.ledger{break-inside:auto; font-size:11.5px;}
+  .sheet table.ledger tr{break-inside:avoid;}
+  .sheet table.ledger th, .sheet table.ledger td{padding:4px 6px;}
+  .sheet table.ledger td{text-align:right;}
+  .sheet table.ledger td:first-child{text-align:left;}
+  .sheet table.ledger tr.totalsrow td{font-weight:700; background:var(--panel-2);}
+@media print{
+  .lease-review .review-controls{display:none!important;}
+  .lease-review{background:#fff;}
+}
+/* Tailwind preflight resets heading weight; the page relied on browser defaults. */
+.sheet h2.doctitle{font-weight:700;}
+.sheet h2, .sheet h3{font-family:var(--serif); margin-top:0;}

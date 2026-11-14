@@ -118,6 +118,12 @@ export default async function LeaseDetailPage({
           <Link href={`/leases/new?cloneFrom=${leaseId}`} className="text-sm text-slate-600 hover:underline">
             Duplicate this lease
           </Link>
+          <Link href={`/leases/${leaseId}/terms`} className="text-sm text-slate-600 hover:underline">
+            Lease terms
+          </Link>
+          <Link href={`/leases/${leaseId}/review`} className="text-sm text-slate-600 hover:underline">
+            Review &amp; Print (2026 lease)
+          </Link>
           <Link href={`/leases/${leaseId}/preview`} className="text-sm text-slate-600 hover:underline">
             Preview document
           </Link>

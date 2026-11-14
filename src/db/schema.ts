@@ -6,6 +6,7 @@ import {
   numeric,
   date,
   timestamp,
+  jsonb,
 } from "drizzle-orm/pg-core";
 
 export const properties = pgTable("properties", {
@@ -91,7 +92,16 @@ export const leases = pgTable("leases", {
   tenantSignatoryTitle: text("tenant_signatory_title"),
   guarantorName: text("guarantor_name"),
   tenantImprovementDetails: text("tenant_improvement_details"),
+
+  // Lease Builder v1.7: inputs with no column of their own (see
+  // src/lib/lease-engine.ts LeaseTerms), and the revision-mode switches.
+  leaseTerms: jsonb("lease_terms").$type<Record<string, unknown>>(),
+  revisionMode: text("revision_mode").notNull().default("original"),
+  revisionSchedule: text("revision_schedule").notNull().default("yes"),
 });
+
+export const REVISION_MODES = ["original", "review", "clean"] as const;
+export type RevisionMode = (typeof REVISION_MODES)[number];
 
 export const rentSchedulePeriods = pgTable("rent_schedule_periods", {
   id: serial("id").primaryKey(),
