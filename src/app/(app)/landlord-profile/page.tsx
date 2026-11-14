@@ -30,6 +30,22 @@ export default async function LandlordProfilePage() {
           Save
         </button>
       </form>
+
+      <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-2">
+        <h2 className="text-sm font-semibold">Security</h2>
+        <p className="text-sm text-slate-500">
+          Sessions last 7 days. If a device was lost or the password may have been shared, sign out
+          every browser and device at once (then change the password if needed).
+        </p>
+        <form method="POST" action="/api/logout-all">
+          <button
+            type="submit"
+            className="rounded border border-red-300 text-red-700 px-3 py-1.5 text-sm hover:bg-red-50"
+          >
+            Sign out everywhere
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
