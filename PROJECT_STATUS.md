@@ -186,6 +186,12 @@ should be kept as real data or cleared.
    failed before secrets were even needed. Fixed by making the Neon client
    lazily initialize on first real use (`db` is now a `Proxy`).
 
+## Lease Builder v1.7 (2026-11-13)
+
+Each lease now has Lease terms (`/leases/[id]/terms`) and Review & Print
+(`/leases/[id]/review`) built from the standalone Lease Builder page. Details,
+verification and what is left: PROJECT-STATUS.md and RESUME-HERE.md.
+
 ## Next steps (see TODO.md)
 
 Cloudflare R2 setup is next, then Vercel env vars + deploy, then Cloudflare
